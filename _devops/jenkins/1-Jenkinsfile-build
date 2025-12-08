@@ -11,7 +11,6 @@ pipeline {
         REGISTRY = "localhost:5000"
         IMAGE_RANDOM = "doggo-random-service"
         IMAGE_RATING = "doggo-rating-service"
-        VERSION = "${env.GIT_COMMIT}"
     }
 
     stages {
@@ -19,6 +18,12 @@ pipeline {
             steps {
                 dir(env.SHARED_WS) {
                     checkout scm
+                }
+                script {
+                    dir(env.SHARED_WS) {
+                        env.VERSION = sh(returnStdout: true, script: "git rev-parse --short HEAD").trim()
+                        echo "VERSION = ${env.VERSION}"
+                    }
                 }
             }
         }
@@ -50,10 +55,6 @@ pipeline {
 
         stage('Deploy to k8s') {
             steps {
-                script {
-                    env.VERSION = sh(returnStdout: true, script: "git rev-parse --short HEAD").trim()
-                    echo "VERSION = ${env.VERSION}"
-                }
                 dir(env.SHARED_WS) {
                     sh """
                         sed -i 's|image: ${REGISTRY}/${IMAGE_RANDOM}:.*|image: ${REGISTRY}/${IMAGE_RANDOM}:${VERSION}|g' ${DEPLOY_PATH}/doggo-deployment.yaml
@@ -70,15 +71,17 @@ pipeline {
 
     post {
         failure {
-            sh """
-                kubectl delete -f ${DEPLOY_PATH} --ignore-not-found=true
-                kubectl delete all -l app=doggo --ignore-not-found=true
-                kubectl delete all -l app=doggo-rating --ignore-not-found=true
-                kubectl delete all -l app=postgres --ignore-not-found=true
-                kubectl delete pvc postgres-data --ignore-not-found=true
-                kubectl delete configmap doggo-env --ignore-not-found=true
-                kubectl delete secret doggo-secret --ignore-not-found=true
-            """
+            dir(env.SHARED_WS) {
+                sh """
+                    kubectl delete -f ${DEPLOY_PATH} --ignore-not-found=true
+                    kubectl delete all -l app=doggo --ignore-not-found=true
+                    kubectl delete all -l app=doggo-rating --ignore-not-found=true
+                    kubectl delete all -l app=postgres --ignore-not-found=true
+                    kubectl delete pvc postgres-data --ignore-not-found=true
+                    kubectl delete configmap doggo-env --ignore-not-found=true
+                    kubectl delete secret doggo-secret --ignore-not-found=true
+                """
+            }
         }
         always {
             sh "docker logout ${REGISTRY}"
