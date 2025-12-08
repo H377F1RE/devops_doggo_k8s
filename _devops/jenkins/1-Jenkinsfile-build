@@ -9,6 +9,7 @@ pipeline {
         SHARED_WS = '/var/jenkins_home/workspace/doggo_nexus'
         DEPLOY_PATH = '_devops/deployment'
         REGISTRY = "localhost:5000"
+        MINIKUBE_REGISTRY = "192.168.49.1:5000"
         IMAGE_RANDOM = "doggo-random-service"
         IMAGE_RATING = "doggo-rating-service"
     }
@@ -57,8 +58,8 @@ pipeline {
             steps {
                 dir(env.SHARED_WS) {
                     sh """
-                        sed -i 's|image: ${REGISTRY}/${IMAGE_RANDOM}:.*|image: ${REGISTRY}/${IMAGE_RANDOM}:${VERSION}|g' ${DEPLOY_PATH}/doggo-deployment.yaml
-                        sed -i 's|image: ${REGISTRY}/${IMAGE_RATING}:.*|image: ${REGISTRY}/${IMAGE_RATING}:${VERSION}|g' ${DEPLOY_PATH}/doggo-rating-deployment.yaml
+                        sed -i "s|image-doggo-replace|${MINIKUBE_REGISTRY}/${IMAGE_RANDOM}:${VERSION}|g" ${DEPLOY_PATH}/doggo-deployment.yaml
+                        sed -i "s|image-rating-replace|${MINIKUBE_REGISTRY}/${IMAGE_RATING}:${VERSION}|g" ${DEPLOY_PATH}/doggo-rating-deployment.yaml
                         kubectl apply -f ${DEPLOY_PATH}
                         kubectl rollout status deployment/doggo
                         kubectl rollout status deployment/doggo-rating

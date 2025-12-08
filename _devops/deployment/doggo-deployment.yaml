@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: doggo
-        image: localhost:5000/doggo-random-service:latest
+        image: image-doggo-replace
         envFrom:
         - configMapRef:
             name: doggo-env

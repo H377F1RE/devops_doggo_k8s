@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: doggo-rating
-        image: localhost:5000/doggo-rating-service:latest
+        image: image-rating-replace
         envFrom:
         - configMapRef:
             name: doggo-env
