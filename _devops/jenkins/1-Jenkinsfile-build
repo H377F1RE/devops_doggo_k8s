@@ -50,6 +50,10 @@ pipeline {
 
         stage('Deploy to k8s') {
             steps {
+                script {
+                    env.VERSION = sh(returnStdout: true, script: "git rev-parse --short HEAD").trim()
+                    echo "VERSION = ${env.VERSION}"
+                }
                 dir(env.SHARED_WS) {
                     sh """
                         sed -i 's|image: ${REGISTRY}/${IMAGE_RANDOM}:.*|image: ${REGISTRY}/${IMAGE_RANDOM}:${VERSION}|g' ${DEPLOY_PATH}/doggo-deployment.yaml
@@ -65,10 +69,6 @@ pipeline {
     }
 
     post {
-        always {
-            sh "docker logout ${REGISTRY}"
-            cleanWs()
-        }
         failure {
             sh """
                 kubectl delete -f ${DEPLOY_PATH} --ignore-not-found=true
@@ -79,6 +79,10 @@ pipeline {
                 kubectl delete configmap doggo-env --ignore-not-found=true
                 kubectl delete secret doggo-secret --ignore-not-found=true
             """
+        }
+        always {
+            sh "docker logout ${REGISTRY}"
+            cleanWs()
         }
     }
 }
