@@ -81,6 +81,7 @@ pipeline {
                     kubectl delete pvc postgres-data --ignore-not-found=true
                     kubectl delete configmap doggo-env --ignore-not-found=true
                     kubectl delete secret doggo-secret --ignore-not-found=true
+                    kubectl delete secret nexus-secret --ignore-not-found=true
                 """
             }
         }
