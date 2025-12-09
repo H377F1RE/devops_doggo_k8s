@@ -40,7 +40,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
-
+builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 // ----------------------------------------------------------------
@@ -84,6 +84,7 @@ if (app.Environment.IsDevelopment())
 // API endpoints
 // ----------------------------------------------------------------
 app.UseCors("allowAll");
+app.MapHealthChecks("/health");
 // POST /ratings/{dogId}
 app.MapPost("/ratings/{dogId:long}", async (long dogId, CreateRatingDto dto, AppDb db) =>
 {
