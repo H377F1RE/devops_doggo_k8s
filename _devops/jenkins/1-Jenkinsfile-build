@@ -61,9 +61,9 @@ pipeline {
                         sed -i "s|image-doggo-replace|${REGISTRY_MINIKUBE}/${IMAGE_RANDOM}:${VERSION}|g" ${DEPLOY_PATH}/doggo-deployment.yaml
                         sed -i "s|image-rating-replace|${REGISTRY_MINIKUBE}/${IMAGE_RATING}:${VERSION}|g" ${DEPLOY_PATH}/doggo-rating-deployment.yaml
                         kubectl apply -f ${DEPLOY_PATH}
-                        kubectl rollout status deployment/doggo
-                        kubectl rollout status deployment/doggo-rating
-                        kubectl rollout status deployment/postgres || true
+                        kubectl rollout status deployment/doggo --timeout=60s
+                        kubectl rollout status deployment/doggo-rating --timeout=60s
+                        kubectl rollout status deployment/postgres --timeout=60s || true
                     """
                 }
             }
