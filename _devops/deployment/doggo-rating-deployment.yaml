@@ -23,11 +23,11 @@ spec:
         - secretRef:
             name: doggo-secret
         ports:
-        - containerPort: 8000
+        - containerPort: 8080
         readinessProbe:
           httpGet:
             path: /health
-            port: 8000
+            port: 8080
           periodSeconds: 5
 
 ---
@@ -40,5 +40,5 @@ spec:
     app: doggo-rating
   ports:
     - port: 8000
-      targetPort: 8000
-  type: NodePort
+      targetPort: 8080
+  type: ClusterIP
